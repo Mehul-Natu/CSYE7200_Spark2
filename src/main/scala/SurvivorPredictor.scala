@@ -7,6 +7,8 @@ import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 import org.apache.spark.sql.functions.{avg, udf}
 import org.apache.spark.sql.types.BooleanType
 
+import java.io.PrintWriter
+
 object SurvivorPredictor extends App {
 
   val sparkConf = new SparkConf()
@@ -77,10 +79,24 @@ object SurvivorPredictor extends App {
   val predictionValue: DataFrame = predictions.select("PassengerId", "prediction")
   predictionValue.show()
 
+  val rows: Array[String] = predictionValue.collect().map(row => s"${row(0)},${row(1)}")
+
+  // Define the output file path
+  val outputPath = "C:/Users/mehul/Documents/College_Grad/Sem_3/INFO_7200/Assingment/Spark 2/result.csv"
+
+  // Write the Array of Strings to a CSV file using PrintWriter
+  val writer = new PrintWriter(outputPath)
+  rows.foreach(writer.println)
+  writer.close()
+
+  println(s"Predictions saved to: $outputPath")
+
+
+
   //predictionValue.write.mode(SaveMode.Overwrite).csv("path/to/predictions_output")
 
-  val rddPrediction = predictionValue.rdd
-  rddPrediction.saveAsTextFile("C:/Users/mehul/Documents/College_Grad/Sem_3/INFO_7200/Assingment/Spark 2/result.csv")
+  //val rddPrediction = predictionValue.rdd
+  //rddPrediction.saveAsTextFile("C:/Users/mehul/Documents/College_Grad/Sem_3/INFO_7200/Assingment/Spark 2/result.csv")
   /*predictionValue.write
     .format("csv")
     .option("header", "true")
